@@ -152,6 +152,113 @@
     });
   }
 
+  // ---- compare (VS) ----
+  function teamOptions(selectedName) {
+    let html = "";
+    D.groups.forEach(g => {
+      const teams = D.teams.filter(t => t.group === g && t.status === "complete");
+      if (!teams.length) return;
+      html += `<optgroup label="Grupo ${g}">`;
+      teams.forEach(t => {
+        html += `<option value="${t.name}"${t.name === selectedName ? " selected" : ""}>${t.flag} ${t.name}</option>`;
+      });
+      html += `</optgroup>`;
+    });
+    return html;
+  }
+
+  const recDisp = (t) => t.record ? `${t.record.w}G·${t.record.d}E·${t.record.l}P` : null;
+
+  function cmpRow(label, va, vb, better, da, db) {
+    let winner = null;
+    if (va != null && vb != null) {
+      if (va === vb) winner = "tie";
+      else winner = ((better === "high") ? va > vb : va < vb) ? "a" : "b";
+    }
+    const ca = da == null ? "nd" : (winner === "a" ? "win" : winner === "tie" ? "tie" : winner === "b" ? "lose" : "");
+    const cb = db == null ? "nd" : (winner === "b" ? "win" : winner === "tie" ? "tie" : winner === "a" ? "lose" : "");
+    const html = `<div class="cmp-row">
+      <div class="cmp-val left ${ca}">${da == null ? "sin datos" : da}</div>
+      <div class="cmp-lab">${label}</div>
+      <div class="cmp-val right ${cb}">${db == null ? "sin datos" : db}</div>
+    </div>`;
+    return { html, winner };
+  }
+
+  function probMini(t) {
+    if (!t.prob) return `<div class="cmp-prob nd">prob. sin datos</div>`;
+    return `<div class="cmp-prob">
+      <div class="pbar">
+        <div class="seg w" style="width:${t.prob.w}%">${t.prob.w}</div>
+        <div class="seg d" style="width:${t.prob.d}%">${t.prob.d}</div>
+        <div class="seg l" style="width:${t.prob.l}%">${t.prob.l}</div>
+      </div>
+      <div class="cmp-prob-cap">V/E/D estimada</div>
+    </div>`;
+  }
+
+  function cmpHead(t) {
+    return `<div class="cmp-head">
+      <span class="cmp-flag">${t.flag}</span>
+      <div class="cmp-name">${t.name}</div>
+      <div class="cmp-chips"><span class="chip grp">Grupo ${t.group}</span><span class="chip">${t.conf}</span></div>
+      ${probMini(t)}
+    </div>`;
+  }
+
+  function cmpForm(t) {
+    return (t.form && t.form.length)
+      ? t.form.map(r => `<span class="fbadge ${r}">${r}</span>`).join("")
+      : `<span class="cmp-nd">sin datos</span>`;
+  }
+
+  function compareHtml(a, b) {
+    const pct = (o) => o ? `${o.pct}%` : null;
+    const rows = [
+      cmpRow("Goles a favor / pp", a.gf, b.gf, "high", fmt1(a.gf), fmt1(b.gf)),
+      cmpRow("Goles en contra / pp", a.ga, b.ga, "low", fmt1(a.ga), fmt1(b.ga)),
+      cmpRow("Victorias (muestra)", a.record ? a.record.w : null, b.record ? b.record.w : null, "high", recDisp(a), recDisp(b)),
+      cmpRow("Over 2.5", a.over25 ? a.over25.pct : null, b.over25 ? b.over25.pct : null, "high", pct(a.over25), pct(b.over25)),
+      cmpRow("BTTS (ambos marcan)", a.btts ? a.btts.pct : null, b.btts ? b.btts.pct : null, "high", pct(a.btts), pct(b.btts))
+    ];
+    let aw = 0, bw = 0, tw = 0;
+    rows.forEach(r => { if (r.winner === "a") aw++; else if (r.winner === "b") bw++; else if (r.winner === "tie") tw++; });
+    const verdict = aw > bw ? `Ventaja estadística para ${a.name}`
+      : bw > aw ? `Ventaja estadística para ${b.name}`
+      : "Muy parejo en las métricas comparables";
+    const comparables = aw + bw + tw;
+
+    const formsRow = `<div class="cmp-row cmp-forms">
+      <div class="cmp-val left">${cmpForm(a)}</div>
+      <div class="cmp-lab">Forma (últ. 5)</div>
+      <div class="cmp-val right">${cmpForm(b)}</div>
+    </div>`;
+
+    const hots = `<div class="cmp-hots">
+      <div class="cmp-hot"><div class="lab">🔥 ${a.name}</div><div>${a.hot || "—"}</div></div>
+      <div class="cmp-hot"><div class="lab">🔥 ${b.name}</div><div>${b.hot || "—"}</div></div>
+    </div>`;
+
+    const same = a.name === b.name
+      ? `<div class="cmp-samenote">Estás comparando el mismo equipo. Elegí dos distintos para el cara a cara.</div>` : "";
+
+    return `${same}<div class="cmp">
+      <div class="cmp-heads">${cmpHead(a)}<div class="cmp-vsmid">VS</div>${cmpHead(b)}</div>
+      <div class="cmp-tally">
+        <div>${a.flag} <b>${aw}</b> &nbsp;·&nbsp; ${tw} ${tw === 1 ? "empate" : "empates"} &nbsp;·&nbsp; <b>${bw}</b> ${b.flag}</div>
+        <span class="cmp-verdict">${verdict} — sobre ${comparables} métrica(s) con datos en ambos (excluye la probabilidad estimada).</span>
+      </div>
+      <div class="cmp-rows">${rows.map(r => r.html).join("")}${formsRow}</div>
+      ${hots}
+    </div>`;
+  }
+
+  function renderCompare() {
+    const a = D.teams.find(t => t.name === $("#cmpA").value);
+    const b = D.teams.find(t => t.name === $("#cmpB").value);
+    if (a && b) $("#cmpOut").innerHTML = compareHtml(a, b);
+  }
+
   // ---- build static UI ----
   function build() {
     // meta
@@ -200,6 +307,25 @@
     $("#sources").innerHTML = D.meta.sources.map(s =>
       `<div class="src">• <a href="${s.url}" target="_blank" rel="noopener">${s.label}</a></div>`).join("");
     $("#missing").textContent = D.meta.missingNote;
+
+    // compare view: pickers + default matchup
+    $("#cmpA").innerHTML = teamOptions("Argentina");
+    $("#cmpB").innerHTML = teamOptions("Brasil");
+    $("#cmpA").addEventListener("change", renderCompare);
+    $("#cmpB").addEventListener("change", renderCompare);
+    renderCompare();
+
+    // view switch (Equipos / Comparar)
+    document.querySelectorAll(".vbtn").forEach(btn => btn.addEventListener("click", () => {
+      document.querySelectorAll(".vbtn").forEach(x => x.classList.remove("active"));
+      btn.classList.add("active");
+      const compare = btn.dataset.view === "compare";
+      $("#compareView").hidden = !compare;
+      $("#teamsView").hidden = compare;
+      const ctrls = document.querySelector(".controls");
+      if (ctrls) ctrls.hidden = compare;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }));
 
     render();
   }

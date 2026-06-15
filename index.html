@@ -19,6 +19,11 @@
     <div class="disclaimer" id="disclaimer"></div>
   </header>
 
+  <div class="viewswitch wrap">
+    <button class="vbtn active" data-view="teams">📋 Equipos</button>
+    <button class="vbtn" data-view="compare">⚔️ Comparar</button>
+  </div>
+
   <div class="controls">
     <div class="wrap">
       <div class="tabs" id="tabs"></div>
@@ -31,12 +36,25 @@
   </div>
 
   <main class="wrap">
-    <h2 class="section-title">🏆 Top Picks (mejor forma)</h2>
-    <div class="picks" id="picks"></div>
+    <div id="teamsView">
+      <h2 class="section-title">🏆 Top Picks (mejor forma)</h2>
+      <div class="picks" id="picks"></div>
 
-    <h2 class="section-title">📋 Equipos</h2>
-    <div class="legend" id="legend"></div>
-    <div class="grid" id="grid" style="margin-top:14px"></div>
+      <h2 class="section-title">📋 Equipos</h2>
+      <div class="legend" id="legend"></div>
+      <div class="grid" id="grid" style="margin-top:14px"></div>
+    </div>
+
+    <div id="compareView" hidden>
+      <h2 class="section-title">⚔️ Comparar dos equipos</h2>
+      <p class="cmp-help">Elegí dos selecciones (el menú las agrupa por grupo) y mirá el cara a cara. Recordá: las probabilidades son estimación, no dato oficial.</p>
+      <div class="cmp-pickers">
+        <select id="cmpA" class="cmp-select" aria-label="Equipo 1"></select>
+        <span class="cmp-vsbig">VS</span>
+        <select id="cmpB" class="cmp-select" aria-label="Equipo 2"></select>
+      </div>
+      <div id="cmpOut"></div>
+    </div>
 
     <footer>
       <strong>Fuentes</strong>
