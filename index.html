@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1419" />
+  <title>Mundial 2026 — Informe por Grupos</title>
+  <meta name="description" content="Informe de selecciones del Mundial 2026 por grupo y confederación: forma, goles, BTTS, Over 2.5 y datos calientes." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="top">
+    <h1 id="title">Mundial 2026</h1>
+    <p class="sub" id="subtitle"></p>
+    <p class="date" id="date"></p>
+    <div class="disclaimer" id="disclaimer"></div>
+  </header>
+
+  <div class="controls">
+    <div class="wrap">
+      <div class="tabs" id="tabs"></div>
+      <div class="filters">
+        <select id="confFilter"></select>
+        <input id="search" type="search" placeholder="Buscar equipo…" />
+        <label><input type="checkbox" id="onlyComplete" /> Solo con datos</label>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <h2 class="section-title">🏆 Top Picks (mejor forma)</h2>
+    <div class="picks" id="picks"></div>
+
+    <h2 class="section-title">📋 Equipos</h2>
+    <div class="legend" id="legend"></div>
+    <div class="grid" id="grid" style="margin-top:14px"></div>
+
+    <footer>
+      <strong>Fuentes</strong>
+      <div id="sources"></div>
+      <div class="miss" id="missing"></div>
+      <p class="miss">🎲 Hecho para entretenimiento entre amigos. No es asesoramiento de apuestas.</p>
+    </footer>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+    }
+  </script>
+</body>
+</html>

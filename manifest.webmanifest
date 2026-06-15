@@ -1,0 +1,14 @@
+{
+  "name": "Mundial 2026 — Informe por Grupos",
+  "short_name": "Mundial 2026",
+  "description": "Informe de selecciones del Mundial 2026: forma, goles, BTTS, Over 2.5 y datos calientes por grupo y confederación.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1419",
+  "theme_color": "#0f1419",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
